@@ -1,15 +1,18 @@
 import Group = Phaser.Physics.Arcade.Group;
 import {LevelService} from "../level.service";
+import {Player} from "../objects/Player";
 
 export enum Direction {
     right, left, up, down
 }
 
 export class LevelScene extends Phaser.Scene {
-    private gridSize = 32;
-    // private gridX = 18 * this.gridSize;
-    // private gridY = 12 * this.gridSize;
-    private grid = [];
+    gridSize = 32;
+    grid = [];
+    private cursors: CursorKeys;
+    private lastInputTime: number;
+    private inputTimeDelta = 200;
+    private player: Player;
 
     // HUD
 
@@ -33,41 +36,81 @@ export class LevelScene extends Phaser.Scene {
         this.backgroundGroup = this.physics.add.group();
         this.moveableGroup = this.physics.add.group();
 
-        let gridSize = 32;
+        /*
+        # = Block/Wasser
+          = Floor
+        @ = Spieler
+        + = Spieler auf Ziel
+        $ = Kiste
+        * = Kiste auf Ziel
+        . = Ziel
+        = = innerer Block
+        */
+
         for (let i = 0; i < 10; i++) {
             for (let j = 0; j < 10; j++) {
                 let c = this.grid[i][j];
-                let x = 140 + j * gridSize;
-                let y = 40 + i * gridSize;
+                let x = 140 + j * this.gridSize;
+                let y = 40 + i * this.gridSize;
 
                 let sprite = this.determineBackgroundSprite(c, j, i);
+                // console.log('Adding', sprite, 'at', x, '/', y);
                 this.backgroundGroup.add(this.add.image(x, y, sprite));
+
+                // inner block
+                if (c === '=') {
+                    this.backgroundGroup.add(this.add.image(x, y, 'inner-box'));
+                }
 
                 // goal
                 if (c === '+' || c === '*' || c === '.') {
                     this.backgroundGroup.add(this.add.image(x, y, 'goal'));
                 }
+            }
+        }
+
+        for (let i = 0; i < 10; i++) {
+            for (let j = 0; j < 10; j++) {
+                let c = this.grid[i][j];
+                let x = 140 + j * this.gridSize;
+                let y = 40 + i * this.gridSize;
 
                 // movables - player, box
                 if (c === '@' || c === '+') {
                     // player
-                    this.moveableGroup.add(this.add.image(x, y, 'player'));
+                    this.player = new Player(this, x, y);
                 } else if (c === '$' || c === '*') {
                     // box
                     this.moveableGroup.add(this.add.image(x, y, 'box'));
                 }
-
-                /*
-                # = Block/Wasser
-                  = Floor
-                @ = Spieler
-                + = Spieler auf Ziel
-                $ = Kiste
-                * = Kiste auf Ziel
-                . = Ziel
-                 */
             }
         }
+
+        // cursors
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.lastInputTime = 0;
+    }
+
+    update(time: number, delta: number): void {
+        let direction = this.getCursorDirection();
+        if (direction !== undefined && time > this.lastInputTime + this.inputTimeDelta) {
+            this.player.move(direction);
+            this.lastInputTime = time;
+        }
+    }
+
+    getCursorDirection(): Direction {
+        let direction = undefined;
+        if (this.cursors.down.isDown) {
+            direction = Direction.down;
+        } else if (this.cursors.up.isDown) {
+            direction = Direction.up;
+        } else if (this.cursors.left.isDown) {
+            direction = Direction.left;
+        } else if (this.cursors.right.isDown) {
+            direction = Direction.right;
+        }
+        return direction;
     }
 
     determineBackgroundSprite(c: string, x: number, y: number): string {
@@ -81,7 +124,7 @@ export class LevelScene extends Phaser.Scene {
             let adjacentNeighbors = this.countAdjacentNeighbors(x, y);
             if (adjacentNeighbors === 4) {
                 if (neighbors === 8) {
-                    sprite = 'island;';
+                    sprite = 'island';
                 } else if (neighbors === 7) {
                     // dot
                     if (this.grid[y + 1][x - 1] === '#') {
@@ -163,15 +206,6 @@ export class LevelScene extends Phaser.Scene {
             }
         }
         return count;
-    }
-
-    update(time, delta): void {
-        /*
-        // update HUD
-        this.moneyText.setText(this.money.toString());
-        this.healthText.setText(this.health.toString());
-        this.waveText.setText('W ' + this.wave);
-        */
     }
 
     finish() {

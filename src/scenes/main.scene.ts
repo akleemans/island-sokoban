@@ -20,6 +20,7 @@ export class MainScene extends Phaser.Scene {
 
         // bg
         this.load.image('goal', 'assets/img/bg/goal.png');
+        this.load.image('inner-box', 'assets/img/bg/inner-box.png');
         this.load.image('water', 'assets/img/bg/water.png');
         this.load.image('island', 'assets/img/bg/island.png');
         this.load.image('island_corner_ld', 'assets/img/bg/island_corner_ld.png');
