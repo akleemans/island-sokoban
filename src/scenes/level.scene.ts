@@ -1,5 +1,5 @@
 import Group = Phaser.Physics.Arcade.Group;
-import {Difficulty, LevelService} from "../level.service";
+import {LevelService} from "../level.service";
 
 export enum Direction {
     right, left, up, down
@@ -40,15 +40,8 @@ export class LevelScene extends Phaser.Scene {
                 let x = 140 + j * gridSize;
                 let y = 40 + i * gridSize;
 
-                // water and land
-                if (c === '#') {
-                    // water
-                    this.backgroundGroup.add(this.add.image(x, y, 'water'));
-                } else {
-                    // TODO determine form
-                    // land
-                    this.backgroundGroup.add(this.add.image(x, y, 'island'));
-                }
+                let sprite = this.determineBackgroundSprite(c, j, i);
+                this.backgroundGroup.add(this.add.image(x, y, sprite));
 
                 // goal
                 if (c === '+' || c === '*' || c === '.') {
@@ -65,34 +58,111 @@ export class LevelScene extends Phaser.Scene {
                 }
 
                 /*
-                  = Wall
-                # = Block
+                # = Block/Wasser
+                  = Floor
                 @ = Spieler
                 + = Spieler auf Ziel
                 $ = Kiste
                 * = Kiste auf Ziel
                 . = Ziel
                  */
-
-                /*
-                let x = 100 + j * 80;
-                let y = 50 + i * 80;
-                let n = i * 5 + j + 1;
-                let buttonStart = this.add.sprite(x + 10, y + 20, 'square').setInteractive();
-                this.add.text(x, y, n.toString(), {fontFamily: 'Arial', fontSize: 32, color: '#333'});
-                buttonStart.on('pointerdown', () => {
-                    this.scene.start('LevelScene', {level: n});
-                });
-                */
             }
         }
+    }
 
-        /*
-        let buttonTower1 = this.add.sprite(this.gridX - 70, this.gridY - 25, 'button-tower1');
-        buttonTower1.setInteractive();
-        let buttonTower2 = this.add.sprite(this.gridX - 25, this.gridY - 25, 'button-tower2');
-        buttonTower2.setInteractive();
-        */
+    determineBackgroundSprite(c: string, x: number, y: number): string {
+        let sprite = '???';
+        // water and land
+        if (c === '#') {
+            // water
+            sprite = 'water';
+        } else {
+            let neighbors = this.countNeighbors(x, y);
+            let adjacentNeighbors = this.countAdjacentNeighbors(x, y);
+            if (adjacentNeighbors === 4) {
+                if (neighbors === 8) {
+                    sprite = 'island;';
+                } else if (neighbors === 7) {
+                    // dot
+                    if (this.grid[y + 1][x - 1] === '#') {
+                        sprite = 'island_dot_ld';
+                    } else if (this.grid[y - 1][x - 1] === '#') {
+                        sprite = 'island_dot_lu';
+                    } else if (this.grid[y + 1][x + 1] === '#') {
+                        sprite = 'island_dot_rd';
+                    } else if (this.grid[y - 1][x + 1] === '#') {
+                        sprite = 'island_dot_ru';
+                    }
+                }
+            } else if (adjacentNeighbors === 3) {
+                // edge
+                if (this.grid[y + 1][x] === '#') {
+                    sprite = 'island_edge_d';
+                } else if (this.grid[y][x - 1] === '#') {
+                    sprite = 'island_edge_l';
+                } else if (this.grid[y][x + 1] === '#') {
+                    sprite = 'island_edge_r';
+                } else if (this.grid[y - 1][x] === '#') {
+                    sprite = 'island_edge_u';
+                }
+            } else if (adjacentNeighbors === 2) {
+                // corner
+                if (this.grid[y - 1][x] === '#' && this.grid[y][x + 1] === '#') {
+                    sprite = 'island_corner_ru';
+                } else if (this.grid[y][x + 1] === '#' && this.grid[y + 1][x] === '#') {
+                    sprite = 'island_corner_rd';
+                } else if (this.grid[y + 1][x] === '#' && this.grid[y][x - 1] === '#') {
+                    sprite = 'island_corner_ld';
+                } else if (this.grid[y][x - 1] === '#' && this.grid[y - 1][x] === '#') {
+                    sprite = 'island_corner_lu';
+                }
+            }
+
+            // other case
+            if (sprite === '???') {
+                console.error('Couldnt render map!!!');
+                console.log('x = ' + x + '/ y = ' + y + ' has sprite = ' + sprite);
+                console.log('adjacentNeighbors = ' + adjacentNeighbors);
+                console.log('neighbors = ' + neighbors);
+            }
+        }
+        return sprite;
+    }
+
+
+    countAdjacentNeighbors(x: number, y: number): number {
+        let count = 0;
+        if (this.grid[y][x - 1] !== '#') {
+            count += 1;
+        }
+        if (this.grid[y][x + 1] !== '#') {
+            count += 1;
+        }
+        if (this.grid[y + 1][x] !== '#') {
+            count += 1;
+        }
+        if (this.grid[y - 1][x] !== '#') {
+            count += 1;
+        }
+        return count;
+    }
+
+    countNeighbors(x: number, y: number): number {
+        let count = 0;
+        x -= 1;
+        y -= 1;
+
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if ((i === 1 && j === 1)) {
+                    continue;
+                }
+                if (this.grid[y + i][x + j] !== '#') {
+                    count += 1;
+                }
+            }
+        }
+        return count;
     }
 
     update(time, delta): void {
