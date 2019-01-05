@@ -1,11 +1,11 @@
 import Sprite = Phaser.GameObjects.Sprite;
 import {Coords, Direction, LevelScene} from "../scenes/level.scene";
 
-export class Player extends Sprite {
+export class Box extends Sprite {
     private currentScene: LevelScene;
 
     constructor(scene: LevelScene, x: number, y: number) {
-        super(scene, x, y, "player");
+        super(scene, x, y, "box");
         // super.setOrigin(0.5, 0.5);
         this.currentScene = scene;
         this.currentScene.add.existing(this);
