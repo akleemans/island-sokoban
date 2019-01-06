@@ -25,16 +25,16 @@ export class LevelScene extends Phaser.Scene {
     baseGrid = [];
     private cursors: CursorKeys;
     private lastInputTime: number;
-    private inputTimeDelta = 200;
+    private inputTimeDelta = 150;
 
     private player: Player;
     private levelState = [];
     private finished: boolean = false;
+    private offset = new Coords(140, 16);
+    private levelSize = new Coords(12, 12);
 
     // sprites
     private backgroundGroup: Group;
-
-    //private moveableGroup: Group; // TODO not sure if needed, remove?
 
     constructor() {
         super({
@@ -48,28 +48,15 @@ export class LevelScene extends Phaser.Scene {
     create(data): void {
         console.log('level create(), data:', data);
         this.baseGrid = LevelService.getLevelData(data.difficulty, data.level);
-
         this.backgroundGroup = this.physics.add.group();
-        // this.moveableGroup = this.physics.add.group();
 
-        /*
-        # = Block/Wasser
-          = Floor
-        @ = Spieler
-        + = Spieler auf Ziel
-        $ = Kiste
-        * = Kiste auf Ziel
-        . = Ziel
-        = = innerer Block
-        */
-
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < this.levelSize.y; i++) {
             this.levelState.push([]);
-            for (let j = 0; j < 10; j++) {
+            for (let j = 0; j < this.levelSize.x; j++) {
                 this.levelState[i].push(null);
                 let c = this.baseGrid[i][j];
-                let x = 140 + j * this.gridSize;
-                let y = 40 + i * this.gridSize;
+                let x = this.offset.x + j * this.gridSize;
+                let y = this.offset.y + i * this.gridSize;
 
                 let sprite = this.determineBackgroundSprite(c, j, i);
                 this.backgroundGroup.add(this.add.image(x, y, sprite));
@@ -85,27 +72,27 @@ export class LevelScene extends Phaser.Scene {
                 }
 
                 // goal
-                if (c === '+' || c === '*' || c === '.') {
+                if (LevelScene.charIsGoal(c)) {
                     this.backgroundGroup.add(this.add.image(x, y, 'goal'));
                 }
             }
         }
 
-        for (let i = 0; i < 10; i++) {
-            for (let j = 0; j < 10; j++) {
+        for (let i = 0; i < this.levelSize.y; i++) {
+            for (let j = 0; j < this.levelSize.x; j++) {
                 let c = this.baseGrid[i][j];
-                let x = 140 + j * this.gridSize;
-                let y = 40 + i * this.gridSize;
+                let x = this.offset.x + j * this.gridSize;
+                let y = this.offset.y + i * this.gridSize;
 
                 // movables - player, box
                 if (c === '@' || c === '+') {
                     // player
+                    console.log('Placing player at', j, '/', i);
                     this.player = new Player(this, x, y);
                     this.levelState[i][j] = this.player;
                 } else if (c === '$' || c === '*') {
                     // box
                     this.levelState[i][j] = new Box(this, x, y);
-                    //this.moveableGroup.add(box);
                 }
             }
         }
@@ -133,7 +120,7 @@ export class LevelScene extends Phaser.Scene {
             // case 1: no box (and no wall), then just move
             console.log('p:', p, 'd:', d);
             if (this.levelState[p.y + d.y][p.x + d.x] === null) {
-                console.log('moving case 1, player without box');
+                // console.log('moving case 1, player without box');
                 this.levelState[p.y][p.x] = null;
                 this.levelState[p.y + d.y][p.x + d.x] = this.player;
 
@@ -141,7 +128,7 @@ export class LevelScene extends Phaser.Scene {
                 this.lastInputTime = time;
             } else if (this.levelState[p.y + d.y][p.x + d.x] instanceof Box &&
                 this.levelState[p.y + d.y * 2][p.x + d.x * 2] === null) {
-                console.log('moving case 1, player with box');
+                // console.log('moving case 1, player with box');
                 this.levelState[p.y][p.x] = null;
                 let boxToMove = this.levelState[p.y + d.y][p.x + d.x];
                 this.levelState[p.y + d.y][p.x + d.x] = this.player;
@@ -155,8 +142,8 @@ export class LevelScene extends Phaser.Scene {
     }
 
     getPlayerCoords(): Coords {
-        for (let i = 0; i < 10; i++) {
-            for (let j = 0; j < 10; j++) {
+        for (let i = 0; i < this.levelSize.y; i++) {
+            for (let j = 0; j < this.levelSize.x; j++) {
                 if (this.levelState[i][j] == this.player) {
                     return new Coords(j, i);
                 }
@@ -166,16 +153,24 @@ export class LevelScene extends Phaser.Scene {
     }
 
     isLevelFinished(): boolean {
-        for (let i = 0; i < 10; i++) {
-            for (let j = 0; j < 10; j++) {
+        for (let i = 0; i < this.levelSize.y; i++) {
+            for (let j = 0; j < this.levelSize.x; j++) {
                 let c = this.baseGrid[i][j];
                 // goal without a box standing on it
-                if (c === '.' && !(this.levelState[i][j] instanceof Box)) {
+                if (LevelScene.charIsGoal(c) && !(this.levelState[i][j] instanceof Box)) {
                     return false;
                 }
             }
         }
+        console.log('Finished, this.levelState = ', this.levelState);
         return true;
+    }
+
+    static charIsGoal(c: string): boolean {
+        if (c.length !== 1) {
+            throw new Error('Tried to evaluate if char is goal: ' + c);
+        }
+        return c === '.' || c === '+' || c === '*';
     }
 
     static getCoords(direction: Direction): Coords {
@@ -262,10 +257,10 @@ export class LevelScene extends Phaser.Scene {
 
             // other case
             if (sprite === '???') {
-                console.error('Couldnt render map!!!');
                 console.log('x = ' + x + '/ y = ' + y + ' has sprite = ' + sprite);
                 console.log('adjacentNeighbors = ' + adjacentNeighbors);
                 console.log('neighbors = ' + neighbors);
+                throw new Error('Couldnt render map!')
             }
         }
         return sprite;
@@ -309,7 +304,11 @@ export class LevelScene extends Phaser.Scene {
 
     finish() {
         console.log('Level finished!');
-        this.add.text(200, 200, 'You win!', {fontFamily: 'Arial', fontSize: 32, color: '#333'});
+        this.add.text(200, 200, 'You win! Moves:' + this.player.getMoves(), {
+            fontFamily: 'Arial',
+            fontSize: 32,
+            color: '#333'
+        });
         this.finished = true;
     }
 }

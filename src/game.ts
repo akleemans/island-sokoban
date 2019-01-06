@@ -8,8 +8,8 @@ import {ChooseLevelScene} from "./scenes/choose-level.scene";
 
 // main game configuration
 const config: GameConfig = {
-    width: 600,
-    height: 400,
+    width: 576,  // 18*32
+    height: 384, // 12*32
     type: Phaser.AUTO, // CANVAS | WEBGL
     // pixelArt: true,
     backgroundColor: '#fff',
