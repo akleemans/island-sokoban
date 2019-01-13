@@ -7,48 +7,49 @@ export class MainScene extends Phaser.Scene {
     }
 
     preload(): void {
+        let assetPath = 'assets/';
+
         // UI
-        this.load.image('intro', 'assets/img/ui/intro.png');
-        this.load.image('button-clear', 'assets/img/ui/button-clear.png');
-        this.load.image('square-clear', 'assets/img/ui/square-clear.png');
-        this.load.image('dialog', 'assets/img/ui/dialog.png');
-        this.load.image('dialog-button', 'assets/img/ui/dialog-button.png');
-        this.load.image('dialog-button-menu', 'assets/img/ui/dialog-button-menu.png');
-        this.load.image('dialog-button-empty', 'assets/img/ui/dialog-button-empty.png');
-        this.load.image('dialog-button-menu-square', 'assets/img/ui/dialog-button-menu-square.png');
+        this.load.image('intro', assetPath + 'img/ui/intro.png');
+        this.load.image('button-clear', assetPath + 'img/ui/button-clear.png');
+        this.load.image('square-clear', assetPath + 'img/ui/square-clear.png');
+        this.load.image('dialog', assetPath + 'img/ui/dialog.png');
+        this.load.image('dialog-button', assetPath + 'img/ui/dialog-button.png');
+        this.load.image('dialog-button-menu', assetPath + 'img/ui/dialog-button-menu.png');
+        this.load.image('dialog-button-empty', assetPath + 'img/ui/dialog-button-empty.png');
+        this.load.image('dialog-button-menu-square', assetPath + 'img/ui/dialog-button-menu-square.png');
 
         // font
-        this.load.bitmapFont('comic-font', 'assets/font/comic-queens.png', 'assets/font/comic-queens.fnt');
+        this.load.bitmapFont('comic-font', assetPath + 'font/comic-queens.png', assetPath + 'font/comic-queens.fnt');
 
         // bg
-        this.load.image('goal', 'assets/img/bg/goal.png');
-        this.load.image('inner-box', 'assets/img/bg/inner-box.png');
-        this.load.image('water', 'assets/img/bg/water.png');
-        this.load.image('island', 'assets/img/bg/island.png');
-        this.load.image('island_corner_ld', 'assets/img/bg/island_corner_ld.png');
-        this.load.image('island_corner_lu', 'assets/img/bg/island_corner_lu.png');
-        this.load.image('island_corner_rd', 'assets/img/bg/island_corner_rd.png');
-        this.load.image('island_corner_ru', 'assets/img/bg/island_corner_ru.png');
-        this.load.image('island_dot_ld', 'assets/img/bg/island_dot_ld.png');
-        this.load.image('island_dot_lu', 'assets/img/bg/island_dot_lu.png');
-        this.load.image('island_dot_rd', 'assets/img/bg/island_dot_rd.png');
-        this.load.image('island_dot_ru', 'assets/img/bg/island_dot_ru.png');
-        this.load.image('island_edge_d', 'assets/img/bg/island_edge_d.png');
-        this.load.image('island_edge_l', 'assets/img/bg/island_edge_l.png');
-        this.load.image('island_edge_r', 'assets/img/bg/island_edge_r.png');
-        this.load.image('island_edge_u', 'assets/img/bg/island_edge_u.png');
+        this.load.image('goal', assetPath + 'img/bg/goal.png');
+        this.load.image('inner-box', assetPath + 'img/bg/inner-box.png');
+        this.load.image('water', assetPath + 'img/bg/water.png');
+        this.load.image('island', assetPath + 'img/bg/island.png');
+        this.load.image('island_corner_ld', assetPath + 'img/bg/island_corner_ld.png');
+        this.load.image('island_corner_lu', assetPath + 'img/bg/island_corner_lu.png');
+        this.load.image('island_corner_rd', assetPath + 'img/bg/island_corner_rd.png');
+        this.load.image('island_corner_ru', assetPath + 'img/bg/island_corner_ru.png');
+        this.load.image('island_dot_ld', assetPath + 'img/bg/island_dot_ld.png');
+        this.load.image('island_dot_lu', assetPath + 'img/bg/island_dot_lu.png');
+        this.load.image('island_dot_rd', assetPath + 'img/bg/island_dot_rd.png');
+        this.load.image('island_dot_ru', assetPath + 'img/bg/island_dot_ru.png');
+        this.load.image('island_edge_d', assetPath + 'img/bg/island_edge_d.png');
+        this.load.image('island_edge_l', assetPath + 'img/bg/island_edge_l.png');
+        this.load.image('island_edge_r', assetPath + 'img/bg/island_edge_r.png');
+        this.load.image('island_edge_u', assetPath + 'img/bg/island_edge_u.png');
 
         // movables
-        this.load.image('box', 'assets/img/movables/box.png');
-        this.load.image('player', 'assets/img/movables/player.png');
-
+        this.load.image('box', assetPath + 'img/movables/box.png');
+        this.load.image('player', assetPath + 'img/movables/player.png');
     }
 
     create(): void {
         this.add.image(0, 0, 'intro').setOrigin(0, 0);
 
         let fontSize = 34;
-        this.add.bitmapText(256, 60, 'comic-font', 'sokoban Island', 48).setOrigin(0.5, 0.5);
+        this.add.bitmapText(256, 60, 'comic-font', 'sokoban Island', 44).setOrigin(0.5, 0.5);
 
         this.add.sprite(160, 180, 'dialog-button-menu').setInteractive().on('pointerdown', () => {
             this.scene.start('ChooseLevelScene', {startLevel: 0});
