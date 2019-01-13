@@ -23,15 +23,20 @@ export class Coords {
 export class LevelScene extends Phaser.Scene {
     gridSize = 32;
     baseGrid = [];
+    private offset = new Coords(16, 16);
+    private levelSize = new Coords(16, 12);
+
     private cursors: CursorKeys;
     private lastInputTime: number;
     private inputTimeDelta = 150;
 
     private player: Player;
-    private levelState = [];
-    private finished: boolean = false;
-    private offset = new Coords(140, 16);
-    private levelSize = new Coords(12, 12);
+    private levelNr: number;
+    private levelState;
+    private finished: boolean;
+    private dialogShown: boolean;
+    private dialogButton: Phaser.GameObjects.Sprite;
+    private dialogButtonText: Phaser.GameObjects.BitmapText;
 
     // sprites
     private backgroundGroup: Group;
@@ -46,8 +51,13 @@ export class LevelScene extends Phaser.Scene {
     }
 
     create(data): void {
+        this.finished = false;
+        this.dialogShown = false;
+        this.levelState = [];
         console.log('level create(), data:', data);
-        this.baseGrid = LevelService.getLevelData(data.difficulty, data.level);
+        this.levelNr = data.level;
+
+        this.baseGrid = LevelService.getLevelData(this.levelNr);
         this.backgroundGroup = this.physics.add.group();
 
         for (let i = 0; i < this.levelSize.y; i++) {
@@ -97,6 +107,15 @@ export class LevelScene extends Phaser.Scene {
             }
         }
 
+        // HUD
+        this.dialogButton = this.add.sprite(460, 40, 'dialog-button');
+        this.dialogButton.setOrigin(0.5, 0.5)
+            .setInteractive()
+            .on('pointerdown', () => {
+                this.showDialog();
+            });
+        this.dialogButtonText = this.add.bitmapText(460, 40, 'comic-font', 'pause', 18).setOrigin(0.5, 0.5);
+
         // cursors
         this.cursors = this.input.keyboard.createCursorKeys();
         this.lastInputTime = 0;
@@ -107,6 +126,11 @@ export class LevelScene extends Phaser.Scene {
             if (!this.finished) {
                 this.finish();
             }
+            return;
+        }
+
+        if (this.dialogShown) {
+            console.log('dialog open! not reacting on controls');
             return;
         }
 
@@ -302,13 +326,80 @@ export class LevelScene extends Phaser.Scene {
         return count;
     }
 
+    showDialog() {
+        this.dialogShown = true;
+        this.dialogButton.setVisible(false);
+        this.dialogButtonText.setVisible(false);
+
+        let dialogGroup = this.add.group();
+        dialogGroup.add(this.add.image(256, 192, 'dialog'));
+
+        let headerText = this.finished ? 'you won!' : 'pause';
+        dialogGroup.add(this.add.bitmapText(256, 140, 'comic-font', headerText, 34).setOrigin(0.5, 0.5));
+
+        let levelText = "Level: " + LevelScene.getSetLevel(this.levelNr);
+        let movesText = "Number of moves: " + this.player.getMoves();
+        dialogGroup.add(this.add.bitmapText(60, 190, 'comic-font', levelText, 20).setOrigin(0, 0.5));
+        dialogGroup.add(this.add.bitmapText(60, 220, 'comic-font', movesText, 20).setOrigin(0, 0.5));
+
+        // actions ----------
+
+        // cancel
+        let cancelButton = this.add.sprite(460, 100, 'dialog-button-empty');
+        cancelButton.setOrigin(0.5, 0.5).setInteractive()
+            .on('pointerdown', () => {
+                this.dialogShown = false;
+                dialogGroup.destroy(true);
+                this.dialogButton.setVisible(true);
+                this.dialogButtonText.setVisible(true);
+            });
+        dialogGroup.add(cancelButton);
+
+        // menu
+        dialogGroup.add(this.add.bitmapText(90, 280, 'comic-font', "menu", 20).setOrigin(0.5, 0.5));
+        let menuButton = this.add.sprite(90, 280, 'dialog-button-empty');
+        menuButton.setOrigin(0.5, 0.5).setInteractive()
+            .on('pointerdown', () => {
+                this.scene.start('MainScene');
+            });
+        dialogGroup.add(menuButton);
+
+        // replay
+        dialogGroup.add(this.add.bitmapText(195, 280, 'comic-font', "again", 20).setOrigin(0.5, 0.5));
+        let replayButton = this.add.sprite(195, 280, 'dialog-button-empty');
+        replayButton.setOrigin(0.5, 0.5).setInteractive()
+            .on('pointerdown', () => {
+                this.scene.restart({level: this.levelNr});
+            });
+        dialogGroup.add(replayButton);
+
+        // prev
+        dialogGroup.add(this.add.bitmapText(300, 280, 'comic-font', "prev", 20).setOrigin(0.5, 0.5));
+        let previousButton = this.add.sprite(300, 280, 'dialog-button-empty');
+        previousButton.setOrigin(0.5, 0.5).setInteractive()
+            .on('pointerdown', () => {
+                this.scene.start('LevelScene', {level: Math.max(1, this.levelNr - 1)});
+            });
+        dialogGroup.add(previousButton);
+
+        // next
+        dialogGroup.add(this.add.bitmapText(405, 280, 'comic-font', "next", 20).setOrigin(0.5, 0.5));
+        let nextButton = this.add.sprite(405, 280, 'dialog-button-empty');
+        nextButton.setOrigin(0.5, 0.5).setInteractive()
+            .on('pointerdown', () => {
+                this.scene.start('LevelScene', {level: Math.min(24, this.levelNr + 1)});
+            });
+        dialogGroup.add(nextButton);
+    }
+
+    static getSetLevel(levelNr: number): string {
+        let set = Math.floor(levelNr / 24);
+        let level = levelNr - set * 24;
+        return 'set ' + (set + 1) + ' / level ' + level;
+    }
+
     finish() {
-        console.log('Level finished!');
-        this.add.text(200, 200, 'You win! Moves:' + this.player.getMoves(), {
-            fontFamily: 'Arial',
-            fontSize: 32,
-            color: '#333'
-        });
         this.finished = true;
+        this.showDialog();
     }
 }

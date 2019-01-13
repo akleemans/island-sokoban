@@ -1,5 +1,3 @@
-import {Difficulty} from "../level.service";
-
 export class MainScene extends Phaser.Scene {
 
     constructor() {
@@ -9,14 +7,9 @@ export class MainScene extends Phaser.Scene {
     }
 
     preload(): void {
-        this.load.image('intro', 'assets/img/intro.png');
-
-        this.load.image('button-easy', 'assets/img/button-easy.png');
-        this.load.image('button-medium', 'assets/img/button-medium.png');
-        this.load.image('button-hard', 'assets/img/button-hard.png');
-        this.load.image('button-about', 'assets/img/button-about.png');
-
-        this.load.image('square', 'assets/img/square.png');
+        // this.load.image('intro', 'assets/img/intro.png');
+        this.load.image('button-clear', 'assets/img/button-clear.png');
+        this.load.image('square-clear', 'assets/img/square-clear.png');
 
         // bg
         this.load.image('goal', 'assets/img/bg/goal.png');
@@ -40,23 +33,41 @@ export class MainScene extends Phaser.Scene {
         this.load.image('box', 'assets/img/movables/box.png');
         this.load.image('player', 'assets/img/movables/player.png');
 
+        // HUD
+        this.load.image('dialog', 'assets/img/dialog.png');
+        this.load.image('dialog-button', 'assets/img/dialog-button.png');
+        this.load.image('dialog-button-empty', 'assets/img/dialog-button-empty.png');
+        this.load.bitmapFont('comic-font', 'assets/font/comic-queens.png', 'assets/font/comic-queens.fnt');
     }
 
     create(): void {
-        this.add.sprite(300, 60, 'intro');
-        this.add.sprite(300, 160, 'button-easy').setInteractive().on('pointerdown', () => {
-            this.scene.start('ChooseLevelScene', {difficulty: Difficulty.easy});
+        let fontSize = 36;
+        this.add.bitmapText(256, 60, 'comic-font', 'sokoban Island', 48).setOrigin(0.5, 0.5);
+
+        this.add.sprite(160, 180, 'button-clear').setInteractive().on('pointerdown', () => {
+            this.scene.start('ChooseLevelScene', {startLevel: 0});
         });
-        this.add.sprite(300, 220, 'button-medium').setInteractive().on('pointerdown', () => {
-            this.scene.start('ChooseLevelScene', {difficulty: Difficulty.medium});
+        this.add.bitmapText(160, 180, 'comic-font', 'set 1', fontSize).setOrigin(0.5, 0.5);
+
+        this.add.sprite(160, 260, 'button-clear').setInteractive().on('pointerdown', () => {
+            this.scene.start('ChooseLevelScene', {startLevel: 24});
         });
-        this.add.sprite(300, 280, 'button-hard').setInteractive().on('pointerdown', () => {
-            this.scene.start('ChooseLevelScene', {difficulty: Difficulty.hard});
+        this.add.bitmapText(160, 260, 'comic-font', 'set 2', fontSize).setOrigin(0.5, 0.5);
+
+        this.add.sprite(360, 180, 'button-clear').setInteractive().on('pointerdown', () => {
+            this.scene.start('ChooseLevelScene', {startLevel: 48});
         });
-        this.add.sprite(300, 340, 'button-about').setInteractive().on('pointerdown', () => {
+        this.add.bitmapText(360, 180, 'comic-font', 'set 3', fontSize).setOrigin(0.5, 0.5);
+
+        this.add.sprite(360, 260, 'button-clear').setInteractive().on('pointerdown', () => {
+            this.scene.start('ChooseLevelScene', {startLevel: 72});
+        });
+        this.add.bitmapText(360, 260, 'comic-font', 'set 4', fontSize).setOrigin(0.5, 0.5);
+
+        this.add.sprite(260, 340, 'button-clear').setInteractive().on('pointerdown', () => {
             this.scene.start('AboutScene');
         });
-
+        this.add.bitmapText(260, 340, 'comic-font', 'about', fontSize).setOrigin(0.5, 0.5);
     }
 
     update(time, delta): void {
