@@ -97,7 +97,6 @@ export class LevelScene extends Phaser.Scene {
                 // movables - player, box
                 if (c === '@' || c === '+') {
                     // player
-                    console.log('Placing player at', j, '/', i);
                     this.player = new Player(this, x, y);
                     this.levelState[i][j] = this.player;
                 } else if (c === '$' || c === '*') {
@@ -130,7 +129,6 @@ export class LevelScene extends Phaser.Scene {
         }
 
         if (this.dialogShown) {
-            console.log('dialog open! not reacting on controls');
             return;
         }
 
@@ -144,7 +142,6 @@ export class LevelScene extends Phaser.Scene {
             // case 1: no box (and no wall), then just move
             console.log('p:', p, 'd:', d);
             if (this.levelState[p.y + d.y][p.x + d.x] === null) {
-                // console.log('moving case 1, player without box');
                 this.levelState[p.y][p.x] = null;
                 this.levelState[p.y + d.y][p.x + d.x] = this.player;
 
@@ -152,7 +149,6 @@ export class LevelScene extends Phaser.Scene {
                 this.lastInputTime = time;
             } else if (this.levelState[p.y + d.y][p.x + d.x] instanceof Box &&
                 this.levelState[p.y + d.y * 2][p.x + d.x * 2] === null) {
-                // console.log('moving case 1, player with box');
                 this.levelState[p.y][p.x] = null;
                 let boxToMove = this.levelState[p.y + d.y][p.x + d.x];
                 this.levelState[p.y + d.y][p.x + d.x] = this.player;
@@ -387,7 +383,7 @@ export class LevelScene extends Phaser.Scene {
         let nextButton = this.add.sprite(405, 280, 'dialog-button-empty');
         nextButton.setOrigin(0.5, 0.5).setInteractive()
             .on('pointerdown', () => {
-                this.scene.start('LevelScene', {level: Math.min(24, this.levelNr + 1)});
+                this.scene.start('LevelScene', {level: Math.min(96, this.levelNr + 1)});
             });
         dialogGroup.add(nextButton);
     }
