@@ -365,7 +365,7 @@ export class LevelScene extends Phaser.Scene {
         dialogGroup.add(menuButton);
 
         // replay
-        dialogGroup.add(this.add.bitmapText(195, 280, 'comic-font', "again", 20).setOrigin(0.5, 0.5));
+        dialogGroup.add(this.add.bitmapText(195, 280, 'comic-font', "retry", 20).setOrigin(0.5, 0.5));
         let replayButton = this.add.sprite(195, 280, 'dialog-button-empty');
         replayButton.setOrigin(0.5, 0.5).setInteractive()
             .on('pointerdown', () => {
@@ -393,7 +393,7 @@ export class LevelScene extends Phaser.Scene {
     }
 
     static getSetLevel(levelNr: number): string {
-        let set = Math.floor(levelNr / 24);
+        let set = Math.floor((levelNr - 1) / 24);
         let level = levelNr - set * 24;
         return 'set ' + (set + 1) + ' / level ' + level;
     }

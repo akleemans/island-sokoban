@@ -12,12 +12,14 @@ export class ChooseLevelScene extends Phaser.Scene {
     }
 
     create(data): void {
+        this.add.image(0, 0, 'intro').setOrigin(0, 0);
+
         for (let i = 0; i < 4; i++) {
             for (let j = 0; j < 6; j++) {
-                let x = 70 + j * 85;
+                let x = 40 + j * 85;
                 let y = 50 + i * 75;
                 let n = i * 6 + j + 1;
-                let buttonStart = this.add.sprite(x, y, 'square-clear').setInteractive();
+                let buttonStart = this.add.sprite(x, y, 'dialog-button-menu-square').setInteractive();
                 buttonStart.on('pointerdown', () => {
                     this.scene.start('LevelScene', {level: n + data.startLevel});
                 });
