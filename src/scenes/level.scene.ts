@@ -2,6 +2,7 @@ import Group = Phaser.Physics.Arcade.Group;
 import {LevelService} from "../level.service";
 import {Player} from "../objects/Player";
 import {Box} from "../objects/Box";
+import {Level} from "../objects/level";
 
 export enum Direction {
     right,
@@ -21,8 +22,9 @@ export class Coords {
 }
 
 export class LevelScene extends Phaser.Scene {
-    gridSize = 32;
-    baseGrid = [];
+    public gridSize = 32;
+    private baseGrid = [];
+    private level: Level;
     private offset = new Coords(16, 16);
     private levelSize = new Coords(16, 12);
 
@@ -31,7 +33,6 @@ export class LevelScene extends Phaser.Scene {
     private inputTimeDelta = 150;
 
     private player: Player;
-    private levelNr: number;
     private levelState;
     private finished: boolean;
     private dialogShown: boolean;
@@ -55,9 +56,8 @@ export class LevelScene extends Phaser.Scene {
         this.dialogShown = false;
         this.levelState = [];
         console.log('level create(), data:', data);
-        this.levelNr = data.level;
-
-        this.baseGrid = LevelService.getLevelData(this.levelNr);
+        this.level = LevelService.getLevelData(data.levelSet, data.nr);
+        this.baseGrid = this.level.baseGrid;
         this.backgroundGroup = this.physics.add.group();
 
         for (let i = 0; i < this.levelSize.y; i++) {
@@ -140,7 +140,6 @@ export class LevelScene extends Phaser.Scene {
             let p = this.getPlayerCoords();
 
             // case 1: no box (and no wall), then just move
-            console.log('p:', p, 'd:', d);
             if (this.levelState[p.y + d.y][p.x + d.x] === null) {
                 this.levelState[p.y][p.x] = null;
                 this.levelState[p.y + d.y][p.x + d.x] = this.player;
@@ -172,7 +171,7 @@ export class LevelScene extends Phaser.Scene {
         throw new Error('Player not found in level state!');
     }
 
-    isLevelFinished(): boolean {
+    private isLevelFinished(): boolean {
         for (let i = 0; i < this.levelSize.y; i++) {
             for (let j = 0; j < this.levelSize.x; j++) {
                 let c = this.baseGrid[i][j];
@@ -333,7 +332,7 @@ export class LevelScene extends Phaser.Scene {
         let headerText = this.finished ? 'you won!' : 'pause';
         dialogGroup.add(this.add.bitmapText(256, 140, 'comic-font', headerText, 34).setOrigin(0.5, 0.5));
 
-        let levelText = "Level: " + LevelScene.getSetLevel(this.levelNr);
+        let levelText = "Level: " + this.level.nr;
         let movesText = "Number of moves: " + this.player.getMoves();
         dialogGroup.add(this.add.bitmapText(60, 190, 'comic-font', levelText, 20).setOrigin(0, 0.5));
         dialogGroup.add(this.add.bitmapText(60, 220, 'comic-font', movesText, 20).setOrigin(0, 0.5));
@@ -365,7 +364,7 @@ export class LevelScene extends Phaser.Scene {
         let replayButton = this.add.sprite(195, 280, 'dialog-button-empty');
         replayButton.setOrigin(0.5, 0.5).setInteractive()
             .on('pointerdown', () => {
-                this.scene.restart({level: this.levelNr});
+                this.scene.restart({levelSet: this.level.levelSet, nr: this.level.nr});
             });
         dialogGroup.add(replayButton);
 
@@ -374,7 +373,7 @@ export class LevelScene extends Phaser.Scene {
         let previousButton = this.add.sprite(300, 280, 'dialog-button-empty');
         previousButton.setOrigin(0.5, 0.5).setInteractive()
             .on('pointerdown', () => {
-                this.scene.start('LevelScene', {level: Math.max(1, this.levelNr - 1)});
+                this.scene.start('LevelScene', {levelSet: this.level.levelSet, nr: Math.max(1, this.level.nr - 1)});
             });
         dialogGroup.add(previousButton);
 
@@ -383,19 +382,18 @@ export class LevelScene extends Phaser.Scene {
         let nextButton = this.add.sprite(405, 280, 'dialog-button-empty');
         nextButton.setOrigin(0.5, 0.5).setInteractive()
             .on('pointerdown', () => {
-                this.scene.start('LevelScene', {level: Math.min(96, this.levelNr + 1)});
+                const maxLevel = LevelService.getMaxAvailableLevel(this.level.levelSet);
+                this.scene.start('LevelScene', {
+                    levelSet: this.level.levelSet,
+                    nr: Math.min(maxLevel, this.level.nr + 1)
+                });
             });
         dialogGroup.add(nextButton);
     }
 
-    static getSetLevel(levelNr: number): string {
-        let set = Math.floor((levelNr - 1) / 24);
-        let level = levelNr - set * 24;
-        return 'set ' + (set + 1) + ' / level ' + level;
-    }
-
-    finish() {
+    private finish() {
         this.finished = true;
+        LevelService.addSolvedLevel(this.level.levelSet, this.level.nr);
         this.showDialog();
     }
 }

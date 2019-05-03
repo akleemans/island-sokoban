@@ -1,3 +1,5 @@
+import {LevelSet} from "../objects/level-set";
+
 export class MainScene extends Phaser.Scene {
 
     constructor() {
@@ -7,6 +9,7 @@ export class MainScene extends Phaser.Scene {
     }
 
     preload(): void {
+        // https://www.kleemans.ch/static/island-sokoban/
         let assetPath = 'assets/';
 
         // UI
@@ -18,6 +21,7 @@ export class MainScene extends Phaser.Scene {
         this.load.image('dialog-button-menu', assetPath + 'img/ui/dialog-button-menu.png');
         this.load.image('dialog-button-empty', assetPath + 'img/ui/dialog-button-empty.png');
         this.load.image('dialog-button-menu-square', assetPath + 'img/ui/dialog-button-menu-square.png');
+        this.load.image('dialog-button-menu-square-green', assetPath + 'img/ui/dialog-button-menu-square-green.png');
 
         // font
         this.load.bitmapFont('comic-font', assetPath + 'font/comic-queens.png', assetPath + 'font/comic-queens.fnt');
@@ -52,22 +56,22 @@ export class MainScene extends Phaser.Scene {
         this.add.bitmapText(256, 60, 'comic-font', 'sokoban Island', 44).setOrigin(0.5, 0.5);
 
         this.add.sprite(160, 180, 'dialog-button-menu').setInteractive().on('pointerdown', () => {
-            this.scene.start('ChooseLevelScene', {startLevel: 0});
+            this.scene.start('ChooseLevelScene', {levelSet: LevelSet.set1});
         });
         this.add.bitmapText(160, 180, 'comic-font', 'set 1', fontSize).setOrigin(0.5, 0.5);
 
         this.add.sprite(360, 180, 'dialog-button-menu').setInteractive().on('pointerdown', () => {
-            this.scene.start('ChooseLevelScene', {startLevel: 24});
+            this.scene.start('ChooseLevelScene', {levelSet: LevelSet.set2});
         });
         this.add.bitmapText(360, 180, 'comic-font', 'set 2', fontSize).setOrigin(0.5, 0.5);
 
         this.add.sprite(160, 260, 'dialog-button-menu').setInteractive().on('pointerdown', () => {
-            this.scene.start('ChooseLevelScene', {startLevel: 48});
+            this.scene.start('ChooseLevelScene', {levelSet: LevelSet.set3});
         });
         this.add.bitmapText(160, 260, 'comic-font', 'set 3', fontSize).setOrigin(0.5, 0.5);
 
         this.add.sprite(360, 260, 'dialog-button-menu').setInteractive().on('pointerdown', () => {
-            this.scene.start('ChooseLevelScene', {startLevel: 72});
+            this.scene.start('ChooseLevelScene', {levelSet: LevelSet.set4});
         });
         this.add.bitmapText(360, 260, 'comic-font', 'set 4', fontSize).setOrigin(0.5, 0.5);
 

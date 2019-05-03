@@ -1,5 +1,5 @@
 import Sprite = Phaser.GameObjects.Sprite;
-import {Coords, Direction, LevelScene} from "../scenes/level.scene";
+import {Coords, LevelScene} from "../scenes/level.scene";
 
 export class Player extends Sprite {
     private currentScene: LevelScene;
