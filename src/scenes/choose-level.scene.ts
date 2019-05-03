@@ -1,18 +1,15 @@
-import {LevelScene} from "./level.scene";
-import {LevelService} from "../level.service";
+import {LevelService} from '../level.service';
+import {LevelScene} from './level.scene';
 
 export class ChooseLevelScene extends Phaser.Scene {
 
-    constructor() {
+    public constructor() {
         super({
-            key: "ChooseLevelScene"
+            key: 'ChooseLevelScene',
         });
     }
 
-    preload(): void {
-    }
-
-    create(data): void {
+    public create(data): void {
         this.add.image(0, 0, 'intro').setOrigin(0, 0);
 
         const maxAvailableLevel = LevelService.getMaxAvailableLevel(data.levelSet);
@@ -20,12 +17,12 @@ export class ChooseLevelScene extends Phaser.Scene {
 
         for (let i = 0; i < 4; i++) {
             for (let j = 0; j < 6; j++) {
-                let x = 40 + j * 85;
-                let y = 50 + i * 75;
-                let nr = i * 6 + j + 1;
+                const x = 40 + j * 85;
+                const y = 50 + i * 75;
+                const nr = i * 6 + j + 1;
                 const sprite = solvedLevels.indexOf(nr) === -1 ?
                     'dialog-button-menu-square' : 'dialog-button-menu-square-green';
-                let buttonStart = this.add.sprite(x, y, sprite);
+                const buttonStart = this.add.sprite(x, y, sprite);
 
                 if (nr <= maxAvailableLevel) {
                     buttonStart.setInteractive().on('pointerdown', () => {
@@ -44,8 +41,5 @@ export class ChooseLevelScene extends Phaser.Scene {
                 this.scene.start('MainScene');
             });
         this.add.bitmapText(50, 340, 'comic-font', '<', 32).setOrigin(0.5, 0.5);
-    }
-
-    update(time, delta): void {
     }
 }

@@ -1,4 +1,4 @@
-import {LevelSet} from "./level-set";
+import {LevelSet} from './level-set';
 
 export class Level {
 

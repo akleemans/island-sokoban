@@ -1,10 +1,11 @@
+/* tslint:disable-next-line:no-reference */
 /// <reference path="./phaser.d.ts"/>
 
-import "phaser";
-import {MainScene} from "./scenes/main.scene";
-import {AboutScene} from "./scenes/about.scene";
-import {LevelScene} from "./scenes/level.scene";
-import {ChooseLevelScene} from "./scenes/choose-level.scene";
+import 'phaser';
+import {AboutScene} from './scenes/about.scene';
+import {ChooseLevelScene} from './scenes/choose-level.scene';
+import {LevelScene} from './scenes/level.scene';
+import {MainScene} from './scenes/main.scene';
 
 // main game configuration
 const config: GameConfig = {
@@ -13,27 +14,26 @@ const config: GameConfig = {
     type: Phaser.AUTO, // CANVAS | WEBGL
     // pixelArt: true,
     backgroundColor: '#fff',
-    parent: "game",
+    parent: 'game',
     scene: [
         MainScene,
         ChooseLevelScene,
         AboutScene,
-        LevelScene
+        LevelScene,
     ],
     physics: {
-        default: "arcade",
-        arcade: {}
-    }
+        default: 'arcade',
+        arcade: {},
+    },
 };
 
-// game class
 export class Game extends Phaser.Game {
-    constructor(config: GameConfig) {
-        super(config);
+    constructor(gameConfig: GameConfig) {
+        super(gameConfig);
     }
 }
 
 // when the page is loaded, create our game instance
 window.onload = () => {
-    let game = new Game(config);
+    const game = new Game(config);
 };

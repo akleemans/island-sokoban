@@ -1,16 +1,16 @@
-import {LevelSet} from "../objects/level-set";
+import {LevelSet} from '../objects/level-set';
 
 export class MainScene extends Phaser.Scene {
 
-    constructor() {
+    public constructor() {
         super({
-            key: "MainScene"
+            key: 'MainScene',
         });
     }
 
-    preload(): void {
+    public preload(): void {
         // https://www.kleemans.ch/static/island-sokoban/
-        let assetPath = 'assets/';
+        const assetPath = 'assets/';
 
         // UI
         this.load.image('intro', assetPath + 'img/ui/intro.png');
@@ -49,10 +49,10 @@ export class MainScene extends Phaser.Scene {
         this.load.image('player', assetPath + 'img/movables/player.png');
     }
 
-    create(): void {
+    public create(): void {
         this.add.image(0, 0, 'intro').setOrigin(0, 0);
 
-        let fontSize = 34;
+        const fontSize = 34;
         this.add.bitmapText(256, 60, 'comic-font', 'sokoban Island', 44).setOrigin(0.5, 0.5);
 
         this.add.sprite(160, 180, 'dialog-button-menu').setInteractive().on('pointerdown', () => {
@@ -79,8 +79,5 @@ export class MainScene extends Phaser.Scene {
             this.scene.start('AboutScene');
         });
         this.add.bitmapText(260, 340, 'comic-font', 'about', 26).setOrigin(0.5, 0.5);
-    }
-
-    update(time, delta): void {
     }
 }

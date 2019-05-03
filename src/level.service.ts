@@ -1,5 +1,5 @@
-import {LevelSet} from "./objects/level-set";
-import {Level} from "./objects/level";
+import {Level} from './objects/level';
+import {LevelSet} from './objects/level-set';
 
 export class LevelService {
 
@@ -26,7 +26,7 @@ export class LevelService {
         }
     }
 
-    static getLevelData(levelSet: LevelSet, nr: number): Level {
+    public static getLevelData(levelSet: LevelSet, nr: number): Level {
 
         /*
             # = Block/Wasser
@@ -45,13 +45,13 @@ export class LevelService {
         return new Level(LevelService.fillLevel(grid), levelSet, nr);
     }
 
-    static fillLevel(level: string[]): string[] {
-        let w = level[0].length;
-        let h = level.length;
+    public static fillLevel(level: string[]): string[] {
+        const w = level[0].length;
+        const h = level.length;
 
         if (w < 16) {
-            let addBefore = Math.floor((16 - w) / 2);
-            let addAfter = Math.ceil((16 - w) / 2);
+            const addBefore = Math.floor((16 - w) / 2);
+            const addAfter = Math.ceil((16 - w) / 2);
 
             // add to beginning and end of every line
             for (let l = 0; l < h; l++) {
@@ -66,11 +66,11 @@ export class LevelService {
         }
 
         // add lines
-        let line = level[0];
+        const line = level[0];
 
         if (h < 12) {
-            let addBefore = Math.floor((12 - h) / 2);
-            let addAfter = Math.ceil((12 - h) / 2);
+            const addBefore = Math.floor((12 - h) / 2);
+            const addAfter = Math.ceil((12 - h) / 2);
 
             // add to beginning and end of every line
             for (let l = 0; l < addBefore; l++) {
@@ -80,9 +80,6 @@ export class LevelService {
                 level.push(line);
             }
         }
-
-        console.log('filled level:', level);
-
         return level;
     }
 
@@ -1053,7 +1050,7 @@ export class LevelService {
             '####   $.##',
             '####   ####',
             '###########',
-        ]
+        ],
     };
 
 }

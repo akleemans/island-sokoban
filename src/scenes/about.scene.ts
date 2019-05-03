@@ -1,15 +1,12 @@
 export class AboutScene extends Phaser.Scene {
 
-    constructor() {
+    public constructor() {
         super({
-            key: "AboutScene"
+            key: 'AboutScene',
         });
     }
 
-    preload(): void {
-    }
-
-    create(): void {
+    public create(): void {
         this.add.image(0, 0, 'intro').setOrigin(0, 0);
 
         this.add.bitmapText(50, 40, 'comic-font', 'about', 32);
@@ -25,8 +22,5 @@ export class AboutScene extends Phaser.Scene {
                 this.scene.start('MainScene');
             });
         this.add.bitmapText(50, 340, 'comic-font', '<', 32).setOrigin(0.5, 0.5);
-    }
-
-    update(time, delta): void {
     }
 }

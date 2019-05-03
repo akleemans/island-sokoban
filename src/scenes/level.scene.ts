@@ -1,25 +1,10 @@
 import Group = Phaser.Physics.Arcade.Group;
-import {LevelService} from "../level.service";
-import {Player} from "../objects/Player";
-import {Box} from "../objects/Box";
-import {Level} from "../objects/level";
-
-export enum Direction {
-    right,
-    left,
-    up,
-    down
-}
-
-export class Coords {
-    x: number;
-    y: number;
-
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-    }
-}
+import {LevelService} from '../level.service';
+import {Box} from '../objects/Box';
+import {Coords} from '../objects/coords';
+import {Direction} from '../objects/direction';
+import {Level} from '../objects/level';
+import {Player} from '../objects/Player';
 
 export class LevelScene extends Phaser.Scene {
     public gridSize = 32;
@@ -38,24 +23,45 @@ export class LevelScene extends Phaser.Scene {
     private dialogShown: boolean;
     private dialogButton: Phaser.GameObjects.Sprite;
     private dialogButtonText: Phaser.GameObjects.BitmapText;
-
-    // sprites
     private backgroundGroup: Group;
 
-    constructor() {
+    public constructor() {
         super({
-            key: "LevelScene"
+            key: 'LevelScene',
         });
     }
 
-    preload(): void {
+    public static charIsGoal(c: string): boolean {
+        if (c.length !== 1) {
+            throw new Error('Tried to evaluate if char is goal: ' + c);
+        }
+        return c === '.' || c === '+' || c === '*';
     }
 
-    create(data): void {
+    public static getCoords(direction: Direction): Coords {
+        let x = 0;
+        let y = 0;
+        switch (direction) {
+            case Direction.down:
+                y = 1;
+                break;
+            case Direction.up:
+                y = -1;
+                break;
+            case Direction.left:
+                x = -1;
+                break;
+            case Direction.right:
+                x = 1;
+                break;
+        }
+        return new Coords(x, y);
+    }
+
+    public create(data): void {
         this.finished = false;
         this.dialogShown = false;
         this.levelState = [];
-        console.log('level create(), data:', data);
         this.level = LevelService.getLevelData(data.levelSet, data.nr);
         this.baseGrid = this.level.baseGrid;
         this.backgroundGroup = this.physics.add.group();
@@ -64,11 +70,11 @@ export class LevelScene extends Phaser.Scene {
             this.levelState.push([]);
             for (let j = 0; j < this.levelSize.x; j++) {
                 this.levelState[i].push(null);
-                let c = this.baseGrid[i][j];
-                let x = this.offset.x + j * this.gridSize;
-                let y = this.offset.y + i * this.gridSize;
+                const c = this.baseGrid[i][j];
+                const x = this.offset.x + j * this.gridSize;
+                const y = this.offset.y + i * this.gridSize;
 
-                let sprite = this.determineBackgroundSprite(c, j, i);
+                const sprite = this.determineBackgroundSprite(c, j, i);
                 this.backgroundGroup.add(this.add.image(x, y, sprite));
 
                 // inner block
@@ -90,9 +96,9 @@ export class LevelScene extends Phaser.Scene {
 
         for (let i = 0; i < this.levelSize.y; i++) {
             for (let j = 0; j < this.levelSize.x; j++) {
-                let c = this.baseGrid[i][j];
-                let x = this.offset.x + j * this.gridSize;
-                let y = this.offset.y + i * this.gridSize;
+                const c = this.baseGrid[i][j];
+                const x = this.offset.x + j * this.gridSize;
+                const y = this.offset.y + i * this.gridSize;
 
                 // movables - player, box
                 if (c === '@' || c === '+') {
@@ -120,7 +126,7 @@ export class LevelScene extends Phaser.Scene {
         this.lastInputTime = 0;
     }
 
-    update(time: number, delta: number): void {
+    public update(time: number, delta: number): void {
         if (this.finished || this.isLevelFinished()) {
             if (!this.finished) {
                 this.finish();
@@ -133,11 +139,11 @@ export class LevelScene extends Phaser.Scene {
         }
 
         // make move if cursor down
-        let direction = this.getCursorDirection();
+        const direction = this.getCursorDirection();
         if (direction !== null && time > this.lastInputTime + this.inputTimeDelta) {
             // check if move is possible
-            let d = LevelScene.getCoords(direction);
-            let p = this.getPlayerCoords();
+            const d = LevelScene.getCoords(direction);
+            const p = this.getPlayerCoords();
 
             // case 1: no box (and no wall), then just move
             if (this.levelState[p.y + d.y][p.x + d.x] === null) {
@@ -149,7 +155,7 @@ export class LevelScene extends Phaser.Scene {
             } else if (this.levelState[p.y + d.y][p.x + d.x] instanceof Box &&
                 this.levelState[p.y + d.y * 2][p.x + d.x * 2] === null) {
                 this.levelState[p.y][p.x] = null;
-                let boxToMove = this.levelState[p.y + d.y][p.x + d.x];
+                const boxToMove = this.levelState[p.y + d.y][p.x + d.x];
                 this.levelState[p.y + d.y][p.x + d.x] = this.player;
                 this.levelState[p.y + d.y * 2][p.x + d.x * 2] = boxToMove;
 
@@ -160,10 +166,10 @@ export class LevelScene extends Phaser.Scene {
         }
     }
 
-    getPlayerCoords(): Coords {
+    private getPlayerCoords(): Coords {
         for (let i = 0; i < this.levelSize.y; i++) {
             for (let j = 0; j < this.levelSize.x; j++) {
-                if (this.levelState[i][j] == this.player) {
+                if (this.levelState[i][j] === this.player) {
                     return new Coords(j, i);
                 }
             }
@@ -174,45 +180,17 @@ export class LevelScene extends Phaser.Scene {
     private isLevelFinished(): boolean {
         for (let i = 0; i < this.levelSize.y; i++) {
             for (let j = 0; j < this.levelSize.x; j++) {
-                let c = this.baseGrid[i][j];
+                const c = this.baseGrid[i][j];
                 // goal without a box standing on it
                 if (LevelScene.charIsGoal(c) && !(this.levelState[i][j] instanceof Box)) {
                     return false;
                 }
             }
         }
-        console.log('Finished, this.levelState = ', this.levelState);
         return true;
     }
 
-    static charIsGoal(c: string): boolean {
-        if (c.length !== 1) {
-            throw new Error('Tried to evaluate if char is goal: ' + c);
-        }
-        return c === '.' || c === '+' || c === '*';
-    }
-
-    static getCoords(direction: Direction): Coords {
-        let x = 0;
-        let y = 0;
-        switch (direction) {
-            case Direction.down:
-                y = 1;
-                break;
-            case Direction.up:
-                y = -1;
-                break;
-            case Direction.left:
-                x = -1;
-                break;
-            case Direction.right:
-                x = 1;
-                break;
-        }
-        return new Coords(x, y);
-    }
-
-    getCursorDirection(): Direction {
+    private getCursorDirection(): Direction {
         let direction = null;
         if (this.cursors.down.isDown) {
             direction = Direction.down;
@@ -226,15 +204,15 @@ export class LevelScene extends Phaser.Scene {
         return direction;
     }
 
-    determineBackgroundSprite(c: string, x: number, y: number): string {
+    private determineBackgroundSprite(c: string, x: number, y: number): string {
         let sprite = '???';
         // water and land
         if (c === '#') {
             // water
             sprite = 'water';
         } else {
-            let neighbors = this.countNeighbors(x, y);
-            let adjacentNeighbors = this.countAdjacentNeighbors(x, y);
+            const neighbors = this.countNeighbors(x, y);
+            const adjacentNeighbors = this.countAdjacentNeighbors(x, y);
             if (adjacentNeighbors === 4) {
                 if (neighbors === 8) {
                     sprite = 'island';
@@ -276,17 +254,13 @@ export class LevelScene extends Phaser.Scene {
 
             // other case
             if (sprite === '???') {
-                console.log('x = ' + x + '/ y = ' + y + ' has sprite = ' + sprite);
-                console.log('adjacentNeighbors = ' + adjacentNeighbors);
-                console.log('neighbors = ' + neighbors);
-                throw new Error('Couldnt render map!')
+                throw new Error('Couldnt render map!');
             }
         }
         return sprite;
     }
 
-
-    countAdjacentNeighbors(x: number, y: number): number {
+    private countAdjacentNeighbors(x: number, y: number): number {
         let count = 0;
         if (this.baseGrid[y][x - 1] !== '#') {
             count += 1;
@@ -303,7 +277,7 @@ export class LevelScene extends Phaser.Scene {
         return count;
     }
 
-    countNeighbors(x: number, y: number): number {
+    private countNeighbors(x: number, y: number): number {
         let count = 0;
         x -= 1;
         y -= 1;
@@ -321,26 +295,26 @@ export class LevelScene extends Phaser.Scene {
         return count;
     }
 
-    showDialog() {
+    private showDialog() {
         this.dialogShown = true;
         this.dialogButton.setVisible(false);
         this.dialogButtonText.setVisible(false);
 
-        let dialogGroup = this.add.group();
+        const dialogGroup = this.add.group();
         dialogGroup.add(this.add.image(256, 192, 'dialog'));
 
-        let headerText = this.finished ? 'you won!' : 'pause';
+        const headerText = this.finished ? 'you won!' : 'pause';
         dialogGroup.add(this.add.bitmapText(256, 140, 'comic-font', headerText, 34).setOrigin(0.5, 0.5));
 
-        let levelText = "Level: " + this.level.nr;
-        let movesText = "Number of moves: " + this.player.getMoves();
+        const levelText = 'Level: ' + this.level.nr;
+        const movesText = 'Number of moves: ' + this.player.getMoves();
         dialogGroup.add(this.add.bitmapText(60, 190, 'comic-font', levelText, 20).setOrigin(0, 0.5));
         dialogGroup.add(this.add.bitmapText(60, 220, 'comic-font', movesText, 20).setOrigin(0, 0.5));
 
         // actions ----------
 
         // cancel
-        let cancelButton = this.add.sprite(460, 100, 'dialog-button-empty');
+        const cancelButton = this.add.sprite(460, 100, 'dialog-button-empty');
         cancelButton.setOrigin(0.5, 0.5).setInteractive()
             .on('pointerdown', () => {
                 this.dialogShown = false;
@@ -351,8 +325,8 @@ export class LevelScene extends Phaser.Scene {
         dialogGroup.add(cancelButton);
 
         // menu
-        dialogGroup.add(this.add.bitmapText(90, 280, 'comic-font', "menu", 20).setOrigin(0.5, 0.5));
-        let menuButton = this.add.sprite(90, 280, 'dialog-button-empty');
+        dialogGroup.add(this.add.bitmapText(90, 280, 'comic-font', 'menu', 20).setOrigin(0.5, 0.5));
+        const menuButton = this.add.sprite(90, 280, 'dialog-button-empty');
         menuButton.setOrigin(0.5, 0.5).setInteractive()
             .on('pointerdown', () => {
                 this.scene.start('MainScene');
@@ -360,8 +334,8 @@ export class LevelScene extends Phaser.Scene {
         dialogGroup.add(menuButton);
 
         // replay
-        dialogGroup.add(this.add.bitmapText(195, 280, 'comic-font', "retry", 20).setOrigin(0.5, 0.5));
-        let replayButton = this.add.sprite(195, 280, 'dialog-button-empty');
+        dialogGroup.add(this.add.bitmapText(195, 280, 'comic-font', 'retry', 20).setOrigin(0.5, 0.5));
+        const replayButton = this.add.sprite(195, 280, 'dialog-button-empty');
         replayButton.setOrigin(0.5, 0.5).setInteractive()
             .on('pointerdown', () => {
                 this.scene.restart({levelSet: this.level.levelSet, nr: this.level.nr});
@@ -369,8 +343,8 @@ export class LevelScene extends Phaser.Scene {
         dialogGroup.add(replayButton);
 
         // prev
-        dialogGroup.add(this.add.bitmapText(300, 280, 'comic-font', "prev", 20).setOrigin(0.5, 0.5));
-        let previousButton = this.add.sprite(300, 280, 'dialog-button-empty');
+        dialogGroup.add(this.add.bitmapText(300, 280, 'comic-font', 'prev', 20).setOrigin(0.5, 0.5));
+        const previousButton = this.add.sprite(300, 280, 'dialog-button-empty');
         previousButton.setOrigin(0.5, 0.5).setInteractive()
             .on('pointerdown', () => {
                 this.scene.start('LevelScene', {levelSet: this.level.levelSet, nr: Math.max(1, this.level.nr - 1)});
@@ -378,14 +352,14 @@ export class LevelScene extends Phaser.Scene {
         dialogGroup.add(previousButton);
 
         // next
-        dialogGroup.add(this.add.bitmapText(405, 280, 'comic-font', "next", 20).setOrigin(0.5, 0.5));
-        let nextButton = this.add.sprite(405, 280, 'dialog-button-empty');
+        dialogGroup.add(this.add.bitmapText(405, 280, 'comic-font', 'next', 20).setOrigin(0.5, 0.5));
+        const nextButton = this.add.sprite(405, 280, 'dialog-button-empty');
         nextButton.setOrigin(0.5, 0.5).setInteractive()
             .on('pointerdown', () => {
                 const maxLevel = LevelService.getMaxAvailableLevel(this.level.levelSet);
                 this.scene.start('LevelScene', {
                     levelSet: this.level.levelSet,
-                    nr: Math.min(maxLevel, this.level.nr + 1)
+                    nr: Math.min(maxLevel, this.level.nr + 1),
                 });
             });
         dialogGroup.add(nextButton);
