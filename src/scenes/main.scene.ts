@@ -9,7 +9,7 @@ export class MainScene extends Phaser.Scene {
     }
 
     public preload(): void {
-        // https://www.kleemans.ch/static/island-sokoban/
+        // const assetPath = 'https://www.kleemans.ch/static/island-sokoban/assets/';
         const assetPath = 'assets/';
 
         // UI
@@ -23,6 +23,7 @@ export class MainScene extends Phaser.Scene {
         this.load.image('dialog-button-menu-square', assetPath + 'img/ui/dialog-button-menu-square.png');
         this.load.image('dialog-button-menu-square-green', assetPath + 'img/ui/dialog-button-menu-square-green.png');
         this.load.image('dialog-button-menu-square-empty', assetPath + 'img/ui/dialog-button-menu-square-empty.png');
+        this.load.image('fullscreen', assetPath + 'img/ui/fullscreen.png');
 
         // font
         this.load.bitmapFont('comic-font', assetPath + 'font/comic-queens.png', assetPath + 'font/comic-queens.fnt');
@@ -80,5 +81,15 @@ export class MainScene extends Phaser.Scene {
             this.scene.start('AboutScene');
         });
         this.add.bitmapText(260, 340, 'comic-font', 'about', 26).setOrigin(0.5, 0.5);
+
+        this.add.sprite(260, 340, 'dialog-button-menu').setInteractive().on('pointerdown', () => {
+            this.scene.start('AboutScene');
+        });
+        this.add.bitmapText(260, 340, 'comic-font', 'about', 26).setOrigin(0.5, 0.5);
+
+        // if (!this.sys.game.device.os.desktop) {
+        //     this.add.sprite(490, 20, 'fullscreen').setInteractive()
+        //         .on('pointerdown', () => this.scale.toggleFullscreen());
+        // }
     }
 }

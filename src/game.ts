@@ -25,6 +25,10 @@ const config: GameConfig = {
         default: 'arcade',
         arcade: {},
     },
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+    },
 };
 
 export class Game extends Phaser.Game {

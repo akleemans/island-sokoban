@@ -125,32 +125,33 @@ export class LevelScene extends Phaser.Scene {
             });
         this.dialogButtonText = this.add.bitmapText(460, 40, 'comic-font', 'menu', 18).setOrigin(0.5, 0.5);
 
-        // buttons ← ↑ → ↓
-        const scale = 0.7;
-        const upButton = this.add.sprite(435, 280, 'dialog-button-menu-square-empty')
-            .setOrigin(0.5, 0.5).setScale(scale, scale).setInteractive();
-        upButton.on('pointerdown', () => this.tryMove(Direction.up));
-        this.moveButtons.add(upButton);
-        this.moveButtons.add(this.add.text(435, 280, '↑', {font: '22px'}).setOrigin(0.5, 0.5).setTint(0x0));
+        if (!this.sys.game.device.os.desktop) {
+            // buttons ← ↑ → ↓
+            const scale = 0.7;
+            const upButton = this.add.sprite(435, 280, 'dialog-button-menu-square-empty')
+                .setOrigin(0.5, 0.5).setScale(scale, scale).setInteractive();
+            upButton.on('pointerdown', () => this.tryMove(Direction.up));
+            this.moveButtons.add(upButton);
+            this.moveButtons.add(this.add.text(435, 280, '↑', {font: '22px'}).setOrigin(0.5, 0.5).setTint(0x0));
 
-        const downButton = this.add.sprite(435, 350, 'dialog-button-menu-square-empty')
-            .setOrigin(0.5, 0.5).setScale(scale, scale).setInteractive();
-        downButton.on('pointerdown', () => this.tryMove(Direction.down));
-        this.moveButtons.add(downButton);
-        this.moveButtons.add(this.add.text(435, 350, '↓', {font: '22px'}).setOrigin(0.5, 0.5).setTint(0x0));
+            const downButton = this.add.sprite(435, 350, 'dialog-button-menu-square-empty')
+                .setOrigin(0.5, 0.5).setScale(scale, scale).setInteractive();
+            downButton.on('pointerdown', () => this.tryMove(Direction.down));
+            this.moveButtons.add(downButton);
+            this.moveButtons.add(this.add.text(435, 350, '↓', {font: '22px'}).setOrigin(0.5, 0.5).setTint(0x0));
 
-        const leftButton = this.add.sprite(400, 315, 'dialog-button-menu-square-empty')
-            .setOrigin(0.5, 0.5).setScale(scale, scale).setInteractive();
-        leftButton.on('pointerdown', () => this.tryMove(Direction.left));
-        this.moveButtons.add(leftButton);
-        this.moveButtons.add(this.add.text(400, 315, '←', {font: '22px'}).setOrigin(0.5, 0.5).setTint(0x0));
+            const leftButton = this.add.sprite(400, 315, 'dialog-button-menu-square-empty')
+                .setOrigin(0.5, 0.5).setScale(scale, scale).setInteractive();
+            leftButton.on('pointerdown', () => this.tryMove(Direction.left));
+            this.moveButtons.add(leftButton);
+            this.moveButtons.add(this.add.text(400, 315, '←', {font: '22px'}).setOrigin(0.5, 0.5).setTint(0x0));
 
-        const rightButton = this.add.sprite(470, 315, 'dialog-button-menu-square-empty')
-            .setOrigin(0.5, 0.5).setScale(scale, scale).setInteractive();
-        rightButton.on('pointerdown', () => this.tryMove(Direction.right));
-        this.moveButtons.add(rightButton);
-        this.moveButtons.add(this.add.text(470, 315, '→', {font: '22px'}).setOrigin(0.5, 0.5).setTint(0x0));
-
+            const rightButton = this.add.sprite(470, 315, 'dialog-button-menu-square-empty')
+                .setOrigin(0.5, 0.5).setScale(scale, scale).setInteractive();
+            rightButton.on('pointerdown', () => this.tryMove(Direction.right));
+            this.moveButtons.add(rightButton);
+            this.moveButtons.add(this.add.text(470, 315, '→', {font: '22px'}).setOrigin(0.5, 0.5).setTint(0x0));
+        }
         // cursors
         this.cursors = this.input.keyboard.createCursorKeys();
         this.lastInputTime = 0;
