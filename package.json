@@ -8,6 +8,7 @@
   ],
   "devDependencies": {
     "expose-loader": "0.7.5",
+    "phaser3-docs": "github:photonstorm/phaser3-docs",
     "ts-loader": "5.3.0",
     "tslint": "^5.16.0",
     "typescript": "3.4.2",

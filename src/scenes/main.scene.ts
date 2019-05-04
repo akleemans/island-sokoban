@@ -51,6 +51,13 @@ export class MainScene extends Phaser.Scene {
     }
 
     public create(): void {
+        /*
+        if (this.scene.scale.isFullscreen) {
+            scene.scale.startFullscreen();
+            // On start fulll screen
+        }
+        this.s*/
+
         this.add.image(0, 0, 'intro').setOrigin(0, 0);
 
         const fontSize = 34;

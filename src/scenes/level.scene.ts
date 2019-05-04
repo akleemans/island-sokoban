@@ -1,11 +1,12 @@
-import Sprite = Phaser.GameObjects.Sprite;
-import Group = Phaser.Physics.Arcade.Group;
 import {LevelService} from '../level.service';
 import {Box} from '../objects/Box';
 import {Coords} from '../objects/coords';
 import {Direction} from '../objects/direction';
 import {Level} from '../objects/level';
 import {Player} from '../objects/Player';
+import Group = Phaser.GameObjects.Group;
+import Sprite = Phaser.GameObjects.Sprite;
+import CursorKeys = Phaser.Input.Keyboard.CursorKeys;
 
 export class LevelScene extends Phaser.Scene {
     public gridSize = 32;

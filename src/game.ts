@@ -1,5 +1,5 @@
 /* tslint:disable-next-line:no-reference */
-/// <reference path="./phaser.d.ts"/>
+/// <reference path="../node_modules/phaser3-docs/typescript/phaser.d.ts"/>
 
 import 'phaser';
 import {AboutScene} from './scenes/about.scene';
