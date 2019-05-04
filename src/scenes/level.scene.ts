@@ -1,3 +1,4 @@
+import Sprite = Phaser.GameObjects.Sprite;
 import Group = Phaser.Physics.Arcade.Group;
 import {LevelService} from '../level.service';
 import {Box} from '../objects/Box';
@@ -24,6 +25,7 @@ export class LevelScene extends Phaser.Scene {
     private dialogButton: Phaser.GameObjects.Sprite;
     private dialogButtonText: Phaser.GameObjects.BitmapText;
     private backgroundGroup: Group;
+    private moveButtons: Group;
 
     public constructor() {
         super({
@@ -65,6 +67,7 @@ export class LevelScene extends Phaser.Scene {
         this.level = LevelService.getLevelData(data.levelSet, data.nr);
         this.baseGrid = this.level.baseGrid;
         this.backgroundGroup = this.physics.add.group();
+        this.moveButtons = this.physics.add.group();
 
         for (let i = 0; i < this.levelSize.y; i++) {
             this.levelState.push([]);
@@ -119,7 +122,33 @@ export class LevelScene extends Phaser.Scene {
             .on('pointerdown', () => {
                 this.showDialog();
             });
-        this.dialogButtonText = this.add.bitmapText(460, 40, 'comic-font', 'pause', 18).setOrigin(0.5, 0.5);
+        this.dialogButtonText = this.add.bitmapText(460, 40, 'comic-font', 'menu', 18).setOrigin(0.5, 0.5);
+
+        // buttons ← ↑ → ↓
+        const scale = 0.7;
+        const upButton = this.add.sprite(435, 280, 'dialog-button-menu-square-empty')
+            .setOrigin(0.5, 0.5).setScale(scale, scale).setInteractive();
+        upButton.on('pointerdown', () => this.tryMove(Direction.up));
+        this.moveButtons.add(upButton);
+        this.moveButtons.add(this.add.text(435, 280, '↑', {font: '22px'}).setOrigin(0.5, 0.5).setTint(0x0));
+
+        const downButton = this.add.sprite(435, 350, 'dialog-button-menu-square-empty')
+            .setOrigin(0.5, 0.5).setScale(scale, scale).setInteractive();
+        downButton.on('pointerdown', () => this.tryMove(Direction.down));
+        this.moveButtons.add(downButton);
+        this.moveButtons.add(this.add.text(435, 350, '↓', {font: '22px'}).setOrigin(0.5, 0.5).setTint(0x0));
+
+        const leftButton = this.add.sprite(400, 315, 'dialog-button-menu-square-empty')
+            .setOrigin(0.5, 0.5).setScale(scale, scale).setInteractive();
+        leftButton.on('pointerdown', () => this.tryMove(Direction.left));
+        this.moveButtons.add(leftButton);
+        this.moveButtons.add(this.add.text(400, 315, '←', {font: '22px'}).setOrigin(0.5, 0.5).setTint(0x0));
+
+        const rightButton = this.add.sprite(470, 315, 'dialog-button-menu-square-empty')
+            .setOrigin(0.5, 0.5).setScale(scale, scale).setInteractive();
+        rightButton.on('pointerdown', () => this.tryMove(Direction.right));
+        this.moveButtons.add(rightButton);
+        this.moveButtons.add(this.add.text(470, 315, '→', {font: '22px'}).setOrigin(0.5, 0.5).setTint(0x0));
 
         // cursors
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -141,28 +170,30 @@ export class LevelScene extends Phaser.Scene {
         // make move if cursor down
         const direction = this.getCursorDirection();
         if (direction !== null && time > this.lastInputTime + this.inputTimeDelta) {
-            // check if move is possible
-            const d = LevelScene.getCoords(direction);
-            const p = this.getPlayerCoords();
+            this.tryMove(direction);
+            this.lastInputTime = time;
+        }
+    }
 
-            // case 1: no box (and no wall), then just move
-            if (this.levelState[p.y + d.y][p.x + d.x] === null) {
-                this.levelState[p.y][p.x] = null;
-                this.levelState[p.y + d.y][p.x + d.x] = this.player;
+    private tryMove(direction: Direction): void {
+        // check if move is possible
+        const d = LevelScene.getCoords(direction);
+        const p = this.getPlayerCoords();
 
-                this.player.move(d);
-                this.lastInputTime = time;
-            } else if (this.levelState[p.y + d.y][p.x + d.x] instanceof Box &&
-                this.levelState[p.y + d.y * 2][p.x + d.x * 2] === null) {
-                this.levelState[p.y][p.x] = null;
-                const boxToMove = this.levelState[p.y + d.y][p.x + d.x];
-                this.levelState[p.y + d.y][p.x + d.x] = this.player;
-                this.levelState[p.y + d.y * 2][p.x + d.x * 2] = boxToMove;
+        // case 1: no box (and no wall), then just move
+        if (this.levelState[p.y + d.y][p.x + d.x] === null) {
+            this.levelState[p.y][p.x] = null;
+            this.levelState[p.y + d.y][p.x + d.x] = this.player;
+            this.player.move(d);
+        } else if (this.levelState[p.y + d.y][p.x + d.x] instanceof Box &&
+            this.levelState[p.y + d.y * 2][p.x + d.x * 2] === null) {
+            this.levelState[p.y][p.x] = null;
+            const boxToMove = this.levelState[p.y + d.y][p.x + d.x];
+            this.levelState[p.y + d.y][p.x + d.x] = this.player;
+            this.levelState[p.y + d.y * 2][p.x + d.x * 2] = boxToMove;
 
-                this.player.move(d);
-                boxToMove.move(d);
-                this.lastInputTime = time;
-            }
+            this.player.move(d);
+            boxToMove.move(d);
         }
     }
 
@@ -299,6 +330,7 @@ export class LevelScene extends Phaser.Scene {
         this.dialogShown = true;
         this.dialogButton.setVisible(false);
         this.dialogButtonText.setVisible(false);
+        this.moveButtons.getChildren().forEach((child: Sprite) => child.setVisible(false));
 
         const dialogGroup = this.add.group();
         dialogGroup.add(this.add.image(256, 192, 'dialog'));
@@ -321,11 +353,12 @@ export class LevelScene extends Phaser.Scene {
                 dialogGroup.destroy(true);
                 this.dialogButton.setVisible(true);
                 this.dialogButtonText.setVisible(true);
+                this.moveButtons.getChildren().forEach((child: Sprite) => child.setVisible(true));
             });
         dialogGroup.add(cancelButton);
 
         // menu
-        dialogGroup.add(this.add.bitmapText(90, 280, 'comic-font', 'menu', 20).setOrigin(0.5, 0.5));
+        dialogGroup.add(this.add.bitmapText(90, 280, 'comic-font', 'home', 20).setOrigin(0.5, 0.5));
         const menuButton = this.add.sprite(90, 280, 'dialog-button-empty');
         menuButton.setOrigin(0.5, 0.5).setInteractive()
             .on('pointerdown', () => {

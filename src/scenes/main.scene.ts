@@ -22,6 +22,7 @@ export class MainScene extends Phaser.Scene {
         this.load.image('dialog-button-empty', assetPath + 'img/ui/dialog-button-empty.png');
         this.load.image('dialog-button-menu-square', assetPath + 'img/ui/dialog-button-menu-square.png');
         this.load.image('dialog-button-menu-square-green', assetPath + 'img/ui/dialog-button-menu-square-green.png');
+        this.load.image('dialog-button-menu-square-empty', assetPath + 'img/ui/dialog-button-menu-square-empty.png');
 
         // font
         this.load.bitmapFont('comic-font', assetPath + 'font/comic-queens.png', assetPath + 'font/comic-queens.fnt');
@@ -53,7 +54,7 @@ export class MainScene extends Phaser.Scene {
         this.add.image(0, 0, 'intro').setOrigin(0, 0);
 
         const fontSize = 34;
-        this.add.bitmapText(256, 60, 'comic-font', 'sokoban Island', 44).setOrigin(0.5, 0.5);
+        this.add.bitmapText(256, 60, 'comic-font', 'Island Sokoban', 44).setOrigin(0.5, 0.5);
 
         this.add.sprite(160, 180, 'dialog-button-menu').setInteractive().on('pointerdown', () => {
             this.scene.start('ChooseLevelScene', {levelSet: LevelSet.set1});
