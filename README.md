@@ -1,5 +1,10 @@
 # Island Sokoban
-Sokoban box-moving game
+Sokoban box-moving game. [Play it here!](https://www.kleemans.ch/island-sokoban)
+
+<p align="center">
+    <img src="https://github.com/akleemans/island-sokoban/blob/master/island-sokoban.png" alt="island sokoban">
+</p>
+
 
 ## Install
 
